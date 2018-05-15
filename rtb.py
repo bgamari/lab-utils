@@ -41,11 +41,14 @@ class RTB2004(vxi11.Instrument):
         yres = float(self.ask('CHAN%d:DATA:YRES?' % ch))
         return arr*yincr + yorigin
 
-    def read_channel_float(self, ch):
+    def read_channel_float(self, ch: int):
         self.write('CHAN%d:DATA:POINTS MAX' % ch)
+        return self._read_float_data(b'CHAN%d:DATA?' % ch)
+
+    def _read_float_data(self, cmd: bytes):
         start = time.time()
         self.write('FORMAT:DATA REAL,32')
-        b = self.ask_raw(b'CHAN%d:DATA?' % ch)
+        b = self.ask_raw(cmd)
         end = time.time()
         logging.debug('Tranferred in %f seconds'%(end-start))
 
