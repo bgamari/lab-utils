@@ -65,6 +65,12 @@ class Dmm6500(vxi11.Instrument):
         return int(r)
 
     def get_buffer_data(self, buf_name: BufferName, start: int, end: int) -> Iterator[Sample]:
+        while start < end:
+            n = min(20, end - start)
+            yield from self.get_buffer_data_raw(buf_name, start, start+n-1)
+            start += n
+
+    def get_buffer_data_raw(self, buf_name: BufferName, start: int, end: int) -> Iterator[Sample]:
         assert start > 0
         r = self.ask(f'TRACE:DATA? {start}, {end}, "{buf_name}", SEC, FRAC, CHAN, READING')
         xs = r.split(',')
@@ -95,6 +101,5 @@ class Dmm6500(vxi11.Instrument):
             if i == end:
                 time.sleep(0.1)
             else:
-                n = min(20, end-i)
-                yield from self.get_buffer_data(buf_name, i, i+n-1)
-                i += n
+                yield from self.get_buffer_data(buf_name, i, end)
+                i = end
