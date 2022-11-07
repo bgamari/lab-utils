@@ -1,8 +1,8 @@
-{ nixpkgs ? (import <nixpkgs> {}), pythonPackages ? nixpkgs.python3Packages }:
+{ buildPythonPackage, vxi11, numpy, scipy, matplotlib }:
 
-pythonPackages.buildPythonPackage {
+buildPythonPackage {
   pname = "rtb-utils";
   version = "0.1";
   src = ./.;
-  propagatedBuildInputs = with pythonPackages; [ vxi11 numpy scipy matplotlib ];
+  propagatedBuildInputs = [ vxi11 numpy scipy matplotlib ];
 }
