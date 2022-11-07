@@ -66,3 +66,20 @@ class RTB2004(vxi11.Instrument):
             if x == '1':
                 break
             time.sleep(1e-3)
+
+    def set_wgen_function(self, function: str):
+        assert function in {'dc', 'sin', 'square', 'pulse', 'triangle', 'ramp', 'sinc', 'arbitrary', 'exponential'}
+        self.write(f'WGEN:FUNC {function}')
+
+    def set_wgen_amplitude(self, amp: float):
+        self.write(f'WGEN:VOLT {amp}')
+
+    def set_wgen_offset(self, offset: float):
+        self.write(f'WGEN:OFFSET {offset}')
+
+    def set_wgen_frequency(self, freq: float):
+        self.write(f'WGEN:FREQ {freq}')
+
+    def set_wgen_enabled(self, enabled: bool):
+        x = 'ON' if enabled else 'OFF'
+        self.write(f'WGEN:OUT:ENABLE {x}')
