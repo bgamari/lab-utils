@@ -5,12 +5,13 @@ import vxi11
 
 import logging
 import time
+import datetime
 from typing import List, NewType, NamedTuple, Iterator
 
 BufferName = NewType("BufferName", str)
 
 class Sample(NamedTuple):
-    time: float
+    time: datetime.datetime
     channel: int
     reading: float
 
@@ -65,12 +66,15 @@ class Dmm6500(vxi11.Instrument):
 
     def get_buffer_data(self, buf_name: BufferName, start: int, end: int) -> Iterator[Sample]:
         assert start > 0
-        r = self.ask(f'TRACE:DATA? {start}, {end}, "{buf_name}", FRAC, CHAN, READING')
+        r = self.ask(f'TRACE:DATA? {start}, {end}, "{buf_name}", SEC, FRAC, CHAN, READING')
         xs = r.split(',')
         while xs:
-            t,ch,x = xs[:3]
-            xs = xs[3:]
-            yield Sample(float(t), int(ch), float(x))
+            t_sec,t_frac,ch,x = xs[:4]
+            xs = xs[4:]
+            t = datetime.datetime.fromtimestamp(int(t_sec)) + \
+                    datetime.timedelta(microseconds=1e6*float(t_frac))
+
+            yield Sample(t, int(ch), float(x))
         
     def trigger_imm(self):
         self.write(f'INITIATE:IMMED')
@@ -92,5 +96,5 @@ class Dmm6500(vxi11.Instrument):
                 time.sleep(0.1)
             else:
                 n = min(20, end-i)
-                yield from self.get_buffer_data(buf_name, i, i+n)
+                yield from self.get_buffer_data(buf_name, i, i+n-1)
                 i += n
