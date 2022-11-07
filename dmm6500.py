@@ -4,6 +4,7 @@
 import vxi11
 
 import logging
+import time
 from typing import List, NewType, NamedTuple, Iterator
 
 BufferName = NewType("BufferName", str)
@@ -68,6 +69,7 @@ class Dmm6500(vxi11.Instrument):
         xs = r.split(',')
         while xs:
             t,ch,x = xs[:3]
+            xs = xs[3:]
             yield Sample(float(t), int(ch), float(x))
         
     def trigger_imm(self):
@@ -87,8 +89,8 @@ class Dmm6500(vxi11.Instrument):
         while True:
             end = self.get_end_index(buf_name)
             if i == end:
-                threading.delay(0.1)
+                time.sleep(0.1)
             else:
-                n = min(10, end-i)
-                yield from self.get_buffer_data(buf_name, i, n+1)
+                n = min(20, end-i)
+                yield from self.get_buffer_data(buf_name, i, i+n)
                 i += n
