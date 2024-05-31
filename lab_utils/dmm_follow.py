@@ -5,11 +5,17 @@ import threading
 from collections import defaultdict
 
 def main() -> None:
-    dmm = dmm6500.Dmm6500('192.168.2.248')
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-H', '--host', default='192.168.2.248')
+    parser.add_argument('-b', '--buffer', default='defbuffer1')
+    args = parser.parse_args()
+
+    dmm = dmm6500.Dmm6500(args.host)
     fig = pl.figure()
     chans = defaultdict(lambda: ([], []))
-    for s in dmm.follow_buffer('defbuffer1'):
-        print(s)
+    for s in dmm.follow_buffer(args.buffer):
+        print(f'{s.time} {s.channel} {s.reading}')
         chans[s.channel][0].append(s.time)
         chans[s.channel][1].append(s.reading)
         pl.clf()
