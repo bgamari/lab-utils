@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lab-utils"
+description = "Various utilities"
+version = "0.1"
+dependencies = [
+    "python-vxi11",
+    "numpy",
+    "scipy",
+    "matplotlib",
+]
+
+[project.scripts]
+spectrum = "lab_utils.spectrum:main"
+dmm-follow = "lab_utils.dmm_follow:main"
+rtb-util = "lab_utils.rtb_util:main"

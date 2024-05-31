@@ -3,6 +3,7 @@
 
 import vxi11
 
+import enum
 import logging
 import time
 import datetime
@@ -12,8 +13,18 @@ BufferName = NewType("BufferName", str)
 
 class Sample(NamedTuple):
     time: datetime.datetime
-    channel: int
+    channel: str
     reading: float
+
+class Function(enum.Enum):
+    dc_voltage  = 'VOLTAGE:DC'
+    ac_voltage  = 'VOLTAGE:AC'
+    dc_current  = 'CURRENT:DC'
+    ac_current  = 'CURRENT:AC'
+    resistance  = 'RESISTANCE'
+    diode       = 'DIODE'
+    capacitance = 'CAPACITANCE'
+    temperature = 'TEMPERATURE'
 
 class Dmm6500(vxi11.Instrument):
     def __init__(self, address):
@@ -25,20 +36,8 @@ class Dmm6500(vxi11.Instrument):
     def wait(self):
         self.write('*WAI')
 
-    FUNCTIONS = {
-        'dc-voltage': 'VOLTAGE:DC',
-        'ac-voltage': 'VOLTAGE:AC',
-        'dc-current': 'CURRENT:DC',
-        'ac-current': 'CURRENT:AC',
-        'resistance': 'RESISTANCE',
-        'diode': 'DIODE',
-        'capacitance': 'CAPACITANCE',
-        'temperature': 'TEMPERATURE',
-    }
-
-    def set_function(self, function: str):
-        x = Dmm6500.FUNCTIONS[function]
-        self.write(f'SENSE1:FUNCTION "{x}"')
+    def set_function(self, function: Function):
+        self.write(f'SENSE1:FUNCTION "{function.value}"')
 
     def create_buffer(self, buf_name: BufferName, size: int):
         self.write(f'TRACE:MAKE "{buf_name}", {size}')
@@ -80,7 +79,7 @@ class Dmm6500(vxi11.Instrument):
             t = datetime.datetime.fromtimestamp(int(t_sec)) + \
                     datetime.timedelta(microseconds=1e6*float(t_frac))
 
-            yield Sample(t, int(ch), float(x))
+            yield Sample(t, ch, float(x))
         
     def trigger_imm(self):
         self.write(f'INITIATE:IMMED')
@@ -103,3 +102,8 @@ class Dmm6500(vxi11.Instrument):
             else:
                 yield from self.get_buffer_data(buf_name, i, end)
                 i = end
+
+    def measure(self) -> float:
+        r = self.ask(f'MEASURE?')
+        return float(r)
+

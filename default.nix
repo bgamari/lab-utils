@@ -1,8 +1,10 @@
-{ buildPythonPackage, vxi11, numpy, scipy, matplotlib }:
+{ buildPythonPackage, setuptools, vxi11, numpy, scipy, matplotlib }:
 
 buildPythonPackage {
-  pname = "rtb-utils";
+  name = "rtb-utils";
   version = "0.1";
+  format = "pyproject";
   src = ./.;
   propagatedBuildInputs = [ vxi11 numpy scipy matplotlib ];
+  nativeBuildInputs = [ setuptools ];
 }

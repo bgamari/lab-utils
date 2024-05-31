@@ -1,4 +1,4 @@
-import dmm6500
+from lab_utils import dmm6500
 from matplotlib import pyplot as pl
 import matplotlib
 import threading

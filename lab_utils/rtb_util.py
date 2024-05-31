@@ -2,7 +2,7 @@
 
 import sys
 import numpy as np
-from rtb import RTB2004
+from lab_utils.rtb import RTB2004
 
 def main():
     import argparse

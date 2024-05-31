@@ -7,7 +7,7 @@ import math
 
 import numpy as np
 import scipy.signal
-from rtb import RTB2004
+from lab_utils.rtb import RTB2004
 
 def sweep(instr: RTB2004, excitation_chan: int, response_chan: int, ampl, freqs, save_curves=None):
     instr.write('WGEN:FUNC SIN')
