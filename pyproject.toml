@@ -16,4 +16,5 @@ dependencies = [
 [project.scripts]
 spectrum = "lab_utils.spectrum:main"
 dmm-follow = "lab_utils.dmm_follow:main"
+dmm-fetch-buffer = "lab_utils.dmm_fetch_buffer:main"
 rtb-util = "lab_utils.rtb_util:main"
