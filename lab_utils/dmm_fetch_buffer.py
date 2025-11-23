@@ -16,8 +16,8 @@ def main() -> None:
     dmm = dmm6500.Dmm6500(args.host)
     start = dmm.get_start_index(args.buffer)
     end = dmm.get_end_index(args.buffer)
-    for s in dmm.get_buffer_data(args.buffer, start, end):
-        print(f'{s.time},{s.channel},{s.reading}')
+    for s in dmm.get_buffer_data_raw(args.buffer, start, end):
+        print(s)
 
 
 if __name__ == '__main__':

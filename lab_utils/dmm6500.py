@@ -7,6 +7,7 @@ import enum
 import logging
 import time
 import datetime
+import array
 from typing import List, NewType, NamedTuple, Iterator
 
 BufferName = NewType("BufferName", str)
@@ -64,12 +65,13 @@ class Dmm6500(vxi11.Instrument):
         return int(r)
 
     def get_buffer_data(self, buf_name: BufferName, start: int, end: int) -> Iterator[Sample]:
+        self.write(':FORMAT:DATA ASCII')
         while start < end:
             n = min(20, end - start)
-            yield from self.get_buffer_data_raw(buf_name, start, start+n-1)
+            yield from self.get_buffer_data_one(buf_name, start, start+n-1)
             start += n
 
-    def get_buffer_data_raw(self, buf_name: BufferName, start: int, end: int) -> Iterator[Sample]:
+    def get_buffer_data_one(self, buf_name: BufferName, start: int, end: int) -> Iterator[Sample]:
         assert start > 0
         r = self.ask(f'TRACE:DATA? {start}, {end}, "{buf_name}", SEC, FRAC, CHAN, READING')
         xs = r.split(',')
@@ -80,7 +82,15 @@ class Dmm6500(vxi11.Instrument):
                     datetime.timedelta(microseconds=1e6*float(t_frac))
 
             yield Sample(t, ch, float(x))
-        
+
+    def get_buffer_data_raw(self, buf_name: BufferName, start: int, end: int) -> array.array:
+        assert start > 0
+        self.write(':FORMAT:DATA REAL')
+        r = self.ask_raw(f'TRACE:DATA? {start}, {end}, "{buf_name}", READING'.encode('ascii'))
+        assert r[:2] == b'#0', f'unexpected response: {r[:10]}'
+        print(len(r))
+        return array.array('d', r[2:-1])
+
     def trigger_imm(self):
         self.write(f'INITIATE:IMMED')
 
