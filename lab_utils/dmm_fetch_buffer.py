@@ -16,8 +16,15 @@ def main() -> None:
     dmm = dmm6500.Dmm6500(args.host)
     start = dmm.get_start_index(args.buffer)
     end = dmm.get_end_index(args.buffer)
-    for s in dmm.get_buffer_data_raw(args.buffer, start, end):
-        print(s)
+
+    # Guess delta-t as we can't retrieve timestamps in raw mode
+    tmp = list(dmm.get_buffer_data(args.buffer, 1, 3))
+    t0 = tmp[0].time
+    dt = tmp[1].time - t0
+
+    for i, s in enumerate(dmm.get_buffer_data_raw(args.buffer, start, end)):
+        t = t0 + i*dt
+        print(f'{t},{s}')
 
 
 if __name__ == '__main__':
