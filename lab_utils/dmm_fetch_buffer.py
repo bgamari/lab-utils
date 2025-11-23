@@ -26,6 +26,8 @@ def main() -> None:
         t = t0 + i*dt
         print(f'{t},{s}')
 
+    dmm.logout()
+
 
 if __name__ == '__main__':
     main()

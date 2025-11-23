@@ -34,6 +34,9 @@ class Dmm6500(vxi11.Instrument):
         logging.info(self.ask('*IDN?'))
         self.write(':FORMAT:DATA ASCII')
 
+    def logout(self):
+        self.write('logout')
+
     def wait(self):
         self.write('*WAI')
 
